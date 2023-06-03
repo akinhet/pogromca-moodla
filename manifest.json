@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "pogromca-moodla",
+  "version": "1.0",
+
+  "description": "twój stary mijaker",
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.moodle.sci.edu.pl/mod/quiz/review.php*"],
+      "js": ["pogromca.js"]
+    }
+  ]
+}
