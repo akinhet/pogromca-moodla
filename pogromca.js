@@ -1,46 +1,78 @@
-String.prototype.hashCode = function() {
-  var hash = 0,
-    i, chr;
-  if (this.length === 0) return hash;
-  for (i = 0; i < this.length; i++) {
-    chr = this.charCodeAt(i);
-    hash = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
+function extract_answers()
+{
+  const answers = document.getElementsByClassName("rightanswer");
+  const questions = document.getElementsByClassName("qtext");
+  const title = document.getElementsByClassName("page-header-headings");
+
+  const question_struct = [{title: title[0].children[0].innerText}];
+
+  for (let i = 0; i < answers.length; i++) {
+
+    const temp = answers[i].innerText.split('\n');
+    let str = "";
+
+    for (let j = 0; j < temp.length; j++) {
+      switch (temp[j]) {
+        case 'Prawidłowymi odpowiedziami są:':
+        case 'Poprawna odpowiedź to:':
+        case '':
+          break;
+
+        case 'Poprawną odpowiedzią jest "Fałsz".':
+          str = str.concat("Fałsz");
+          break;
+
+        case 'Poprawną odpowiedzią jest "Prawda".':
+          str = str.concat("Prawda");
+          break;
+
+        default:
+          str = str.concat(temp[j]);
+          if (j != temp.length - 1)
+            str = str.concat("\n");
+          break;
+      }
+    }
+
+    question_struct.push({question: questions[i].children[0].innerText, answer: str});
   }
-  return hash;
+
+  return question_struct;
 }
 
-const answers = document.getElementsByClassName("rightanswer");
-const questions = document.getElementsByClassName("qtext");
 
-// console.log(answers.length);
-// console.log(questions.length);
+function print_answers(question_struct)
+{
+  console.log(question_struct[0].title);
 
-const test = [];
+  for (let i = 1; i < question_struct.length; i++) {
+    console.log(question_struct[i].question, question_struct[i].answer);
+  }
+}
 
-for (var i = 0; i < answers.length; i++) {
 
-  const temp = answers[i].innerText.split('\n');
-  var str = "";
+async function send_answers(question_struct)
+{
+  let title = question_struct[0].title;
+  for (let i = 1; i < question_struct.length; i++) {
+    try {
+      const response = await fetch("https://pogromca.akinhet.xyz/api/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "question="+question_struct[i].question+"&answer="+question_struct[i].answer+"&title="+title,
+      });
 
-  for (var j = 0; j < temp.length; j++) {
-    switch (temp[j]) {
-      case 'Prawidłowymi odpowiedziami są:':
-      case 'Poprawna odpowiedź to:':
-      case '':
-        break;
-
-      default:
-        str = str.concat(temp[j], "\n");
-        break;
+      const result = await response.json();
+      console.log("Success:", result);
+    } catch (error) {
+      console.error("Error:", error);
     }
   }
-
-  test.push({hash: (questions[i].children[0].innerText+str).hashCode(), question: questions[i].children[0].innerText, answer: str});
 }
 
-for (var i = 0; i < test.length; i++) {
-  console.log(test[i].hash);
-  console.log(test[i].question);
-  console.log(test[i].answer);
-}
+
+// print_answers(extract_answers());
+
+send_answers(extract_answers());

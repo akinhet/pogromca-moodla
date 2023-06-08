@@ -1,0 +1,11 @@
+html, body {
+	width: 300px;
+	background-color: #1C1B22;
+}
+
+input {
+	width: 94%;
+	margin: 3% auto;
+	padding: 4px;
+	text-align: center;
+}
