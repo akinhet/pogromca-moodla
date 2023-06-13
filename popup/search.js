@@ -6,14 +6,14 @@ async function searchdb()
   const json = await fetch("https://pogromca.akinhet.xyz/api/questions?search="+searchval).then((resp) => resp.json());
 
 
-  console.log(json);
   answers.innerHTML = "";
   for (let i = 0; i < json.length; i++) {
-    var li = document.createElement("li");
-    // li.appendChild(document.createTextNode(json[i].question + "<br>" + json[i].answer));
-    li.textContent = json[i].question + "<br>" + json[i].answer;
-    answers.appendChild(li);
-    console.log("dupa");
+    var child = document.createElement("div");
+
+    child.classList.add("ans");
+    child.innerHTML = "<b>" + json[i].question + "</b><br><br>" + json[i].answer;
+
+    answers.appendChild(child);
   }
 }
 

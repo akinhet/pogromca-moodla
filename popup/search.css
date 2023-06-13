@@ -9,3 +9,11 @@ input {
 	padding: 4px;
 	text-align: center;
 }
+
+.ans {
+	width: 90%;
+	margin: 5% auto;
+	padding 5%;
+	background-color: #2d2d2d;
+	color: #EEEEEE;
+}
