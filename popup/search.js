@@ -11,7 +11,7 @@ async function searchdb()
     var child = document.createElement("div");
 
     child.classList.add("ans");
-    child.innerHTML = "<b>" + json[i].question + "</b><br><br>" + json[i].answer;
+    child.innerHTML = "<b>" + json[i].question + "</b><br><br> -> " + json[i].answer;
 
     answers.appendChild(child);
   }
