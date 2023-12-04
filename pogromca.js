@@ -34,7 +34,7 @@ function extract_answers()
       }
     }
 
-    question_struct.push({question: questions[i].children[0].innerText, answer: str});
+    question_struct.push({question: questions[i].innerText.replace(/\n/g,''), answer: str});
   }
 
   return question_struct;
@@ -73,6 +73,6 @@ async function send_answers(question_struct)
 }
 
 
-// print_answers(extract_answers());
+//print_answers(extract_answers());
 
 send_answers(extract_answers());
