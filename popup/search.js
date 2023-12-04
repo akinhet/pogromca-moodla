@@ -17,4 +17,31 @@ async function searchdb()
   }
 }
 
+
 document.addEventListener('input', searchdb);
+
+
+function sendMessageToSender(tabs)
+{
+  for (const tab of tabs) {
+    browser.tabs
+      .sendMessage(tab.id, { greeting: "Hi from background script" })
+      .then((response) => {
+        console.log("Message from the content script:");
+        console.log(response);
+		document.getElementById("search").value = response.response;
+		searchdb();
+		console.log(document.getElementById("search").value);
+      });
+  }
+}
+
+
+window.addEventListener("load", () => {
+  browser.tabs
+    .query({
+      currentWindow: true,
+      active: true,
+    })
+    .then(sendMessageToSender);
+});

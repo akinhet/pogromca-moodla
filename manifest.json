@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "pogromca-moodla",
-  "version": "1.0",
+  "version": "1.1",
 
   "description": "twój stary mijaker",
   "icons": {
@@ -12,10 +12,14 @@
     {
       "matches": ["*://*.moodle.sci.edu.pl/mod/quiz/review.php*"],
       "js": ["pogromca.js"]
+    },
+    {
+      "matches": ["*://*.moodle.sci.edu.pl/mod/quiz/attempt.php*"],
+      "js": ["sender.js"]
     }
   ],
 
-  "permissions": ["https://pogromca.akinhet.xyz/api/*"],
+  "permissions": ["https://pogromca.akinhet.xyz/api/*", "tabs"],
 
   "browser_action": {
     "default_icon": "icons/madge-32.png",
