@@ -83,7 +83,7 @@ function extract_answers()
 					break;
 			}
 		}
-	
+
 		// let question = getMixedText(questions[i]).replace(/\n/g,'')
 		let question = questions[i].textContent.replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
@@ -129,6 +129,6 @@ async function send_answers(question_struct)
 }
 
 
-print_answers(extract_answers());
+// print_answers(extract_answers());
 
-// send_answers(extract_answers());
+send_answers(extract_answers());
