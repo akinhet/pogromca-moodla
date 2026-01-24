@@ -8,39 +8,43 @@ function getSmartText(element) {
     return clone.innerText.trim();
 }
 
-function getCleanText(element) {
-    // 1. Klonujemy element, żeby móc go modyfikować bez wpływu na stronę
+function getMixedText(element) {
+    // 1. Pracujemy na kopii, żeby nie zepsuć strony
     const clone = element.cloneNode(true);
 
-    // 2. Znajdujemy wszystkie skrypty zawierające LaTeX
-    const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
+    // 2. Szukamy specyficznych kontenerów Moodle dla MathJaxa
+    // To jest ten <span>, który trzyma zarówno podgląd, jak i skrypt
+    const mathWrappers = clone.querySelectorAll('.filter_mathjaxloader_equation');
 
-    mathScripts.forEach(script => {
-        // Pobieramy czysty wzór
-        const latex = script.textContent;
+    mathWrappers.forEach(wrapper => {
+        // Szukamy skryptu TYLKO wewnątrz tego wrappera
+        const script = wrapper.querySelector('script[type^="math/tex"]');
         
-        // 3. KLUCZOWY MOMENT: Szukamy głównego kontenera tego wzoru.
-        // W Moodle jest to zazwyczaj klasa .filter_mathjaxloader_equation.
-        // Jeśli jej nie ma, bierzemy bezpośredniego rodzica skryptu.
-        const container = script.closest('.filter_mathjaxloader_equation') || script.parentNode;
-
-        // Tworzymy węzeł tekstowy z LaTeXem (dodajemy $ dla czytelności)
-        const textNode = document.createTextNode(` $${latex}$ `);
-
-        // 4. Podmieniamy CAŁY kontener (wraz z obrazkami/spanami MathJaxa) na sam tekst
-        if (container && container.parentNode) {
-            container.parentNode.replaceChild(textNode, container);
+        if (script) {
+            // Wyciągamy kod
+            const latex = script.textContent;
+            // Tworzymy element tekstowy
+            const textNode = document.createTextNode(` $${latex}$ `);
+            
+            // PODMIENIAMY wrapper na tekst. 
+            // Dzięki temu tekst "dookoła" wrappera pozostaje nienaruszony.
+            wrapper.replaceWith(textNode);
         }
     });
 
-    // 5. Usuwamy ewentualne pozostałości po podglądach (MathJax_Preview)
-    const previews = clone.querySelectorAll('.MathJax_Preview');
-    previews.forEach(el => el.remove());
+    // 3. Fallback: Jeśli MathJax jest w innej strukturze (nie Moodle'owej)
+    // Usuwamy wizualne śmieci MathJaxa, które mogły zostać
+    clone.querySelectorAll('.MathJax, .MathJax_Preview, .MathJax_Display').forEach(el => el.remove());
 
-    // 6. Zwracamy czysty tekst, usuwając wielokrotne spacje i entery
+    // Jeśli zostały jakieś luźne skrypty (poza wrapperami), zamieniamy je na tekst
+    clone.querySelectorAll('script[type^="math/tex"]').forEach(script => {
+        const textNode = document.createTextNode(` $${script.textContent}$ `);
+        script.replaceWith(textNode);
+    });
+
+    // 4. Zwracamy cały tekst znormalizowany (pojedyncze spacje)
     return clone.innerText.replace(/\s+/g, ' ').trim();
 }
-
 
 function extract_answers()
 {
@@ -52,7 +56,7 @@ function extract_answers()
 
 	for (let i = 0; i < answers.length; i++) {
 
-		const temp = getCleanText(answers[i]).split('\n');
+		const temp = getMixedText(answers[i]).split('\n');
 		let str = "";
 
 		for (let j = 0; j < temp.length; j++) {
@@ -78,9 +82,9 @@ function extract_answers()
 			}
 		}
 	
-		let question = getCleanText(questions[i]).replace(/\n/g,'')
+		let question = getMixedText(questions[i]).replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
-		if (img)
+		if (img && !img.closest('.MathJax_Preview'))
 			question += ' ' + img.getAttribute('src').split('/').pop();
 
 		question_struct.push({question: question, answer: str});
