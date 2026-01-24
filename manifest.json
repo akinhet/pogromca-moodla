@@ -10,16 +10,16 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.moodle.sci.edu.pl/mod/quiz/review.php*"],
+      "matches": ["*://*.eportal.pwr.edu.pl/mod/quiz/review.php*"],
       "js": ["pogromca.js"]
     },
     {
-      "matches": ["*://*.moodle.sci.edu.pl/mod/quiz/attempt.php*"],
+      "matches": ["*://*.eportal.pwr.edu.pl/mod/quiz/attempt.php*"],
       "js": ["sender.js"]
     }
   ],
 
-  "permissions": ["https://pogromca.akinhet.xyz/api/*", "tabs"],
+  "permissions": ["https://pogromca.akinhet.xyz/api/*", "tabs", "scripting", "activeTab"],
 
   "browser_action": {
     "default_icon": "icons/madge-32.png",
