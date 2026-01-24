@@ -45,7 +45,7 @@ function extract_answers()
 			}
 		}
 	
-		let question = questions[i].innerText.replace(/\n/g,'')
+		let question = getSmartText(questions[i]).replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
 		if (img)
 			question += ' ' + img.getAttribute('src').split('/').pop();
