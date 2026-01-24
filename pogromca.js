@@ -40,6 +40,47 @@ function dupa(element) {
     return clone.textContent.trim();
 }
 
+function getSafeText(element) {
+    // 1. Pracujemy na kopii elementu
+    const clone = element.cloneNode(true);
+
+    // 2. Najpierw usuwamy style i skrypty JS (nie MathJax), żeby nie śmieciły w tekście
+    clone.querySelectorAll('style, script:not([type^="math/tex"])').forEach(el => el.remove());
+
+    // 3. KONWERSJA: Znajdujemy ukryte skrypty z kodem LaTeX
+    const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
+    
+    mathScripts.forEach(script => {
+        // Pobieramy surowy kod LaTeX
+        const latex = script.textContent;
+        // Tworzymy węzeł tekstowy
+        const textNode = document.createTextNode(` $${latex}$ `);
+        
+        // ZAMIANA: Podmieniamy TYLKO sam znacznik <script>.
+        // Nie ruszamy rodzica, nie ruszamy rodzeństwa.
+        // Jeśli obok skryptu był tekst "Oblicz: ", to on tam zostanie.
+        script.replaceWith(textNode);
+    });
+
+    // 4. CZYSZCZENIE: Usuwamy elementy wizualne wygenerowane przez MathJaxa.
+    // Są one teraz zbędne, bo mamy już tekst z punktu 3.
+    const junkClasses = [
+        '.MathJax', 
+        '.MathJax_Preview', 
+        '.MathJax_Display', 
+        '.MathJax_SVG',
+        '.jax-element' // Czasem występuje w innych wersjach
+    ];
+    
+    junkClasses.forEach(selector => {
+        clone.querySelectorAll(selector).forEach(el => el.remove());
+    });
+
+    // 5. Pobieramy textContent z całego elementu.
+    // Ponieważ nie ruszyliśmy struktury HTML (spanów, divów), zwykły tekst został zachowany.
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+}
+
 // function getMixedText(element) {
 //     // 1. Pracujemy na kopii, żeby nie zepsuć strony
 //     const clone = element.cloneNode(true);
@@ -88,7 +129,7 @@ function extract_answers()
 
 	for (let i = 0; i < answers.length; i++) {
 
-		const temp = dupa(answers[i]).split('\n');
+		const temp = getSafeText(answers[i]).split('\n');
 		// const temp = answers[i].textContent.split('\n');
 		let str = "";
 
@@ -115,7 +156,7 @@ function extract_answers()
 			}
 		}
 
-		let question = dupa(questions[i]).replace(/\n/g,'')
+		let question = getSafeText(questions[i]).replace(/\n/g,'')
 		// let question = questions[i].textContent.replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
 		if (img && !img.closest('.MathJax_Preview'))
