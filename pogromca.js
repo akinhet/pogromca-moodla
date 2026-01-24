@@ -201,6 +201,6 @@ async function send_answers(question_struct)
 }
 
 
-print_answers(extract_answers());
+// print_answers(extract_answers());
 
-// send_answers(extract_answers());
+send_answers(extract_answers());
