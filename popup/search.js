@@ -56,10 +56,10 @@ async function searchpage()
 
 			return questions;
 		}
-	}).then((questions) => {
+	}).then(async (questions) => {
 		const answers = document.getElementById("answers");
 		answers.innerHTML = "";
-		questions[0].result.forEach((q) => {
+		questions[0].result.forEach(async (q) => {
 			const json = await fetch("https://pogromca.akinhet.xyz/api/questions?search="+q).then((resp) => resp.json());
 			for (let i = 0; i < json.length; i++) {
 				var child = document.createElement("div");
