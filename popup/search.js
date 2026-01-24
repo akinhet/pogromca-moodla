@@ -9,6 +9,47 @@ function getSmartText(element) {
     return clone.textContent.trim();
 }
 
+function getSafeText(element) {
+    // 1. Pracujemy na kopii elementu
+    const clone = element.cloneNode(true);
+
+    // 2. Najpierw usuwamy style i skrypty JS (nie MathJax), żeby nie śmieciły w tekście
+    clone.querySelectorAll('style, script:not([type^="math/tex"])').forEach(el => el.remove());
+
+    // 3. KONWERSJA: Znajdujemy ukryte skrypty z kodem LaTeX
+    const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
+    
+    mathScripts.forEach(script => {
+        // Pobieramy surowy kod LaTeX
+        const latex = script.textContent;
+        // Tworzymy węzeł tekstowy
+        const textNode = document.createTextNode(` $${latex}$ `);
+        
+        // ZAMIANA: Podmieniamy TYLKO sam znacznik <script>.
+        // Nie ruszamy rodzica, nie ruszamy rodzeństwa.
+        // Jeśli obok skryptu był tekst "Oblicz: ", to on tam zostanie.
+        script.replaceWith(textNode);
+    });
+
+    // 4. CZYSZCZENIE: Usuwamy elementy wizualne wygenerowane przez MathJaxa.
+    // Są one teraz zbędne, bo mamy już tekst z punktu 3.
+    const junkClasses = [
+        '.MathJax', 
+        '.MathJax_Preview', 
+        '.MathJax_Display', 
+        '.MathJax_SVG',
+        '.jax-element' // Czasem występuje w innych wersjach
+    ];
+    
+    junkClasses.forEach(selector => {
+        clone.querySelectorAll(selector).forEach(el => el.remove());
+    });
+
+    // 5. Pobieramy textContent z całego elementu.
+    // Ponieważ nie ruszyliśmy struktury HTML (spanów, divów), zwykły tekst został zachowany.
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+}
+
 async function searchdb()
 {
 	const searchval = document.getElementById("search").value;
@@ -60,9 +101,9 @@ async function searchpage()
 			qs.forEach((q) => {
 				const img = q.querySelector('img');
 				if (img && !img.closest('.MathJax_Preview'))
-					questions.push(q.textContent.replace(/\n/g,'') + ' ' + img.getAttribute('src').split('/').pop());
+					questions.push(getSafeText(q).replace(/\n/g,'') + ' ' + img.getAttribute('src').split('/').pop());
 				else
-					questions.push(q.textContent.replace(/\n/g,''));
+					questions.push(getSafeText(q).replace(/\n/g,''));
 			});
 
 			return questions;
