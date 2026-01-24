@@ -1,3 +1,14 @@
+function getSmartText(element) {
+    const clone = element.cloneNode(true);
+    const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
+    mathScripts.forEach(script => {
+        const tex = document.createTextNode(" " + script.textContent + " ");
+        script.parentNode.insertBefore(tex, script);
+    });
+    // return clone.innerText.trim();
+    return clone.textContent.trim();
+}
+
 async function searchdb()
 {
 	const searchval = document.getElementById("search").value;

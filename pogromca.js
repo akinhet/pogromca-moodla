@@ -9,6 +9,37 @@ function getSmartText(element) {
     return clone.textContent.trim();
 }
 
+// To zwróci tekst w stylu: "Oblicz $2+2$ wiedząc, że..."
+function dupa(element) {
+    const clone = element.cloneNode(true);
+    
+    // 1. Znajdź skrypty (magazyn oryginałów)
+    const scripts = clone.querySelectorAll('script[type^="math/tex"]');
+    
+    scripts.forEach(script => {
+        // Wyciągnij oryginał
+        const originalString = script.textContent;
+        
+        // Stwórz tekst, który wygląda jak kod źródłowy (dodajemy dolary)
+        const textNode = document.createTextNode(`$${originalString}$`);
+        
+        // Znajdź kontener MathJaxa (ten co robi bałagan) i podmień go na prosty tekst
+        const container = script.closest('.filter_mathjaxloader_equation') || script.parentNode;
+        
+        // Jeśli struktura jest dziwna, podmień sam skrypt
+        if (container.parentNode) {
+            container.replaceWith(textNode);
+        } else {
+            script.replaceWith(textNode);
+        }
+    });
+
+    // 2. Usuń wszelkie pozostałe śmieci wizualne MathJaxa
+    clone.querySelectorAll('.MathJax, .MathJax_Preview, .MathJax_Display').forEach(el => el.remove());
+
+    return clone.textContent.trim();
+}
+
 // function getMixedText(element) {
 //     // 1. Pracujemy na kopii, żeby nie zepsuć strony
 //     const clone = element.cloneNode(true);
@@ -57,8 +88,8 @@ function extract_answers()
 
 	for (let i = 0; i < answers.length; i++) {
 
-		// const temp = getMixedText(answers[i]).split('\n');
-		const temp = answers[i].textContent.split('\n');
+		const temp = dupa(answers[i]).split('\n');
+		// const temp = answers[i].textContent.split('\n');
 		let str = "";
 
 		for (let j = 0; j < temp.length; j++) {
@@ -84,8 +115,8 @@ function extract_answers()
 			}
 		}
 
-		// let question = getMixedText(questions[i]).replace(/\n/g,'')
-		let question = questions[i].textContent.replace(/\n/g,'')
+		let question = dupa(questions[i]).replace(/\n/g,'')
+		// let question = questions[i].textContent.replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
 		if (img && !img.closest('.MathJax_Preview'))
 			question += ' ' + img.getAttribute('src').split('/').pop();
@@ -129,6 +160,6 @@ async function send_answers(question_struct)
 }
 
 
-// print_answers(extract_answers());
+print_answers(extract_answers());
 
-send_answers(extract_answers());
+// send_answers(extract_answers());
