@@ -111,9 +111,9 @@ async function searchpage()
 	}).then(async (questions) => {
 		const answers = document.getElementById("answers");
 		answers.innerHTML = "";
-		for (let j = 0; j < questions[0].length; j++) {
+		for (let j = 0; j < questions[0].result.length; j++) {
 		// questions[0].result.forEach(async (q) => {
-			let q = questions[0][j];
+			let q = questions[0].result[j];
 			const json = await fetch("https://pogromca.akinhet.xyz/api/questions?search="+q).then((resp) => resp.json());
 			for (let i = 0; i < json.length; i++) {
 				var child = document.createElement("div");
