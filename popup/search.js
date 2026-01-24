@@ -111,7 +111,9 @@ async function searchpage()
 	}).then(async (questions) => {
 		const answers = document.getElementById("answers");
 		answers.innerHTML = "";
-		questions[0].result.forEach(async (q) => {
+		for (int j = 0; j < questions[0].length; j++) {
+		// questions[0].result.forEach(async (q) => {
+			let q = questions[0][j]
 			const json = await fetch("https://pogromca.akinhet.xyz/api/questions?search="+q).then((resp) => resp.json());
 			for (let i = 0; i < json.length; i++) {
 				var child = document.createElement("div");
@@ -121,7 +123,7 @@ async function searchpage()
 
 				answers.appendChild(child);
 			}
-		});
+		}
 	});
 }
 
