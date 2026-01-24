@@ -5,46 +5,47 @@ function getSmartText(element) {
         const tex = document.createTextNode(" " + script.textContent + " ");
         script.parentNode.insertBefore(tex, script);
     });
-    return clone.innerText.trim();
+    // return clone.innerText.trim();
+    return clone.textContent.trim();
 }
 
-function getMixedText(element) {
-    // 1. Pracujemy na kopii, żeby nie zepsuć strony
-    const clone = element.cloneNode(true);
-
-    // 2. Szukamy specyficznych kontenerów Moodle dla MathJaxa
-    // To jest ten <span>, który trzyma zarówno podgląd, jak i skrypt
-    const mathWrappers = clone.querySelectorAll('.filter_mathjaxloader_equation');
-
-    mathWrappers.forEach(wrapper => {
-        // Szukamy skryptu TYLKO wewnątrz tego wrappera
-        const script = wrapper.querySelector('script[type^="math/tex"]');
-        
-        if (script) {
-            // Wyciągamy kod
-            const latex = script.textContent;
-            // Tworzymy element tekstowy
-            const textNode = document.createTextNode(` $${latex}$ `);
-            
-            // PODMIENIAMY wrapper na tekst. 
-            // Dzięki temu tekst "dookoła" wrappera pozostaje nienaruszony.
-            wrapper.replaceWith(textNode);
-        }
-    });
-
-    // 3. Fallback: Jeśli MathJax jest w innej strukturze (nie Moodle'owej)
-    // Usuwamy wizualne śmieci MathJaxa, które mogły zostać
-    clone.querySelectorAll('.MathJax, .MathJax_Preview, .MathJax_Display').forEach(el => el.remove());
-
-    // Jeśli zostały jakieś luźne skrypty (poza wrapperami), zamieniamy je na tekst
-    clone.querySelectorAll('script[type^="math/tex"]').forEach(script => {
-        const textNode = document.createTextNode(` $${script.textContent}$ `);
-        script.replaceWith(textNode);
-    });
-
-    // 4. Zwracamy cały tekst znormalizowany (pojedyncze spacje)
-    return clone.innerText.replace(/\s+/g, ' ').trim();
-}
+// function getMixedText(element) {
+//     // 1. Pracujemy na kopii, żeby nie zepsuć strony
+//     const clone = element.cloneNode(true);
+//
+//     // 2. Szukamy specyficznych kontenerów Moodle dla MathJaxa
+//     // To jest ten <span>, który trzyma zarówno podgląd, jak i skrypt
+//     const mathWrappers = clone.querySelectorAll('.filter_mathjaxloader_equation');
+//
+//     mathWrappers.forEach(wrapper => {
+//         // Szukamy skryptu TYLKO wewnątrz tego wrappera
+//         const script = wrapper.querySelector('script[type^="math/tex"]');
+//
+//         if (script) {
+//             // Wyciągamy kod
+//             const latex = script.textContent;
+//             // Tworzymy element tekstowy
+//             const textNode = document.createTextNode(` $${latex}$ `);
+//
+//             // PODMIENIAMY wrapper na tekst. 
+//             // Dzięki temu tekst "dookoła" wrappera pozostaje nienaruszony.
+//             wrapper.replaceWith(textNode);
+//         }
+//     });
+//
+//     // 3. Fallback: Jeśli MathJax jest w innej strukturze (nie Moodle'owej)
+//     // Usuwamy wizualne śmieci MathJaxa, które mogły zostać
+//     clone.querySelectorAll('.MathJax, .MathJax_Preview, .MathJax_Display').forEach(el => el.remove());
+//
+//     // Jeśli zostały jakieś luźne skrypty (poza wrapperami), zamieniamy je na tekst
+//     clone.querySelectorAll('script[type^="math/tex"]').forEach(script => {
+//         const textNode = document.createTextNode(` $${script.textContent}$ `);
+//         script.replaceWith(textNode);
+//     });
+//
+//     // 4. Zwracamy cały tekst znormalizowany (pojedyncze spacje)
+//     return clone.innerText.replace(/\s+/g, ' ').trim();
+// }
 
 function extract_answers()
 {
@@ -56,7 +57,8 @@ function extract_answers()
 
 	for (let i = 0; i < answers.length; i++) {
 
-		const temp = getMixedText(answers[i]).split('\n');
+		// const temp = getMixedText(answers[i]).split('\n');
+		const temp = answers[i].textContent.split('\n');
 		let str = "";
 
 		for (let j = 0; j < temp.length; j++) {
@@ -82,7 +84,8 @@ function extract_answers()
 			}
 		}
 	
-		let question = getMixedText(questions[i]).replace(/\n/g,'')
+		// let question = getMixedText(questions[i]).replace(/\n/g,'')
+		let question = questions[i].textContent.replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
 		if (img && !img.closest('.MathJax_Preview'))
 			question += ' ' + img.getAttribute('src').split('/').pop();
