@@ -101,9 +101,9 @@ async function searchpage()
 			qs.forEach((q) => {
 				const img = q.querySelector('img');
 				if (img && !img.closest('.MathJax_Preview'))
-					questions.push(getSafeText(q).replace(/\n/g,'') + ' ' + img.getAttribute('src').split('/').pop());
+					questions.push(getSafeText(q).replace("\\",'').replace(/\n/g,'') + ' ' + img.getAttribute('src').split('/').pop());
 				else
-					questions.push(getSafeText(q).replace(/\n/g,''));
+					questions.push(getSafeText(q).replace("\\",'').replace(/\n/g,''));
 			});
 
 			return questions;

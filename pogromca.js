@@ -129,7 +129,7 @@ function extract_answers()
 
 	for (let i = 0; i < answers.length; i++) {
 
-		const temp = getSafeText(answers[i]).split('\n');
+		const temp = getSafeText(answers[i]).replace("\\",'').split('\n');
 		// const temp = answers[i].textContent.split('\n');
 		let str = "";
 
@@ -156,7 +156,7 @@ function extract_answers()
 			}
 		}
 
-		let question = getSafeText(questions[i]).replace(/\n/g,'')
+		let question = getSafeText(questions[i]).replace(/\n/g,'').replace("\\",'')
 		// let question = questions[i].textContent.replace(/\n/g,'')
 		const img = questions[i].querySelector('img');
 		if (img && !img.closest('.MathJax_Preview'))
