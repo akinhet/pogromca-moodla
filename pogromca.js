@@ -1,3 +1,14 @@
+function getSmartText(element) {
+    const clone = element.cloneNode(true);
+    const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
+    mathScripts.forEach(script => {
+        const tex = document.createTextNode(" " + script.textContent + " ");
+        script.parentNode.insertBefore(tex, script);
+    });
+    return clone.innerText.trim();
+}
+
+
 function extract_answers()
 {
 	const answers = document.getElementsByClassName("rightanswer");
@@ -8,7 +19,7 @@ function extract_answers()
 
 	for (let i = 0; i < answers.length; i++) {
 
-		const temp = answers[i].innerText.split('\n');
+		const temp = getSmartText(answers[i]).split('\n');
 		let str = "";
 
 		for (let j = 0; j < temp.length; j++) {
