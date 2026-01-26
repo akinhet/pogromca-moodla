@@ -125,12 +125,16 @@ function extract_answers()
 	const questions = document.getElementsByClassName("qtext");
 	const title = document.getElementsByClassName("page-header-headings");
 
+	const ques = document.querySelectorAll(".que");
+	console.log(ques);
+
 	const question_struct = [{title: title[0].children[0].innerText}];
 
-	for (let i = 0; i < questions.length; i++) {
+	for (let i = 0; i < ques.length; i++) {
 
-		const ans = questions[i].querySelector(".rightanswer");
-		if (!ans)
+		const ans = ques[i].querySelector(".rightanswer");
+		const question = ques[i].querySelector(".qtext");
+		if (!ans || !question)
 			continue;
 
 		const temp = getSafeText(ans).replaceAll("\\",'').split('\n');
@@ -160,13 +164,13 @@ function extract_answers()
 			}
 		}
 
-		let question = getSafeText(questions[i]).replaceAll("\\",'').replace(/\n/g,'')
+		let question_txt = getSafeText(question).replaceAll("\\",'').replace(/\n/g,'')
 		// let question = questions[i].textContent.replace(/\n/g,'')
-		const img = questions[i].querySelector('img');
+		const img = question.querySelector('img');
 		if (img && !img.closest('.MathJax_Preview'))
-			question += ' ' + img.getAttribute('src').split('/').pop();
+			question_txt += ' ' + img.getAttribute('src').split('/').pop();
 
-		question_struct.push({question: question, answer: str});
+		question_struct.push({question: question_txt, answer: str});
 	}
 
 	return question_struct;
