@@ -10,29 +10,14 @@ function getSmartText(element) {
 }
 
 function getSafeText(element) {
-    // 1. Pracujemy na kopii elementu
     const clone = element.cloneNode(true);
-
-    // 2. Najpierw usuwamy style i skrypty JS (nie MathJax), żeby nie śmieciły w tekście
     clone.querySelectorAll('style, script:not([type^="math/tex"])').forEach(el => el.remove());
-
-    // 3. KONWERSJA: Znajdujemy ukryte skrypty z kodem LaTeX
     const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
-    
     mathScripts.forEach(script => {
-        // Pobieramy surowy kod LaTeX
         const latex = script.textContent;
-        // Tworzymy węzeł tekstowy
         const textNode = document.createTextNode(` $${latex}$ `);
-        
-        // ZAMIANA: Podmieniamy TYLKO sam znacznik <script>.
-        // Nie ruszamy rodzica, nie ruszamy rodzeństwa.
-        // Jeśli obok skryptu był tekst "Oblicz: ", to on tam zostanie.
         script.replaceWith(textNode);
     });
-
-    // 4. CZYSZCZENIE: Usuwamy elementy wizualne wygenerowane przez MathJaxa.
-    // Są one teraz zbędne, bo mamy już tekst z punktu 3.
     const junkClasses = [
         '.MathJax', 
         '.MathJax_Preview', 
@@ -40,13 +25,9 @@ function getSafeText(element) {
         '.MathJax_SVG',
         '.jax-element' // Czasem występuje w innych wersjach
     ];
-    
     junkClasses.forEach(selector => {
         clone.querySelectorAll(selector).forEach(el => el.remove());
     });
-
-    // 5. Pobieramy textContent z całego elementu.
-    // Ponieważ nie ruszyliśmy struktury HTML (spanów, divów), zwykły tekst został zachowany.
     return clone.textContent.replace(/\s+/g, ' ').trim();
 }
 
@@ -96,8 +77,31 @@ async function searchpage()
 	browser.scripting.executeScript({
 		target: { tabId: tab.id },
 		func: () => {
+			function getSafeText(element) {
+				const clone = element.cloneNode(true);
+				clone.querySelectorAll('style, script:not([type^="math/tex"])').forEach(el => el.remove());
+				const mathScripts = clone.querySelectorAll('script[type^="math/tex"]');
+				mathScripts.forEach(script => {
+					const latex = script.textContent;
+					const textNode = document.createTextNode(` $${latex}$ `);
+					script.replaceWith(textNode);
+				});
+				const junkClasses = [
+					'.MathJax', 
+					'.MathJax_Preview', 
+					'.MathJax_Display', 
+					'.MathJax_SVG',
+					'.jax-element' // Czasem występuje w innych wersjach
+				];
+				junkClasses.forEach(selector => {
+					clone.querySelectorAll(selector).forEach(el => el.remove());
+				});
+				return clone.textContent.replace(/\s+/g, ' ').trim();
+			}
+
 			const questions = [];
 			const qs = document.querySelectorAll(".qtext");
+			console.log(qs);
 			qs.forEach((q) => {
 				const img = q.querySelector('img');
 				if (img && !img.closest('.MathJax_Preview'))
@@ -106,9 +110,11 @@ async function searchpage()
 					questions.push(getSafeText(q).replaceAll("\\",'').replace(/\n/g,''));
 			});
 
+			console.log(questions);
 			return questions;
 		}
 	}).then(async (questions) => {
+		console.log(questions[0]);
 		const answers = document.getElementById("answers");
 		answers.innerHTML = "";
 		for (let j = 0; j < questions[0].result.length; j++) {
@@ -148,11 +154,11 @@ function sendMessageToSender(tabs)
 }
 
 
-window.addEventListener("load", () => {
-	browser.tabs
-		.query({
-			currentWindow: true,
-			active: true,
-		})
-		.then(sendMessageToSender);
-});
+// window.addEventListener("load", () => {
+// 	browser.tabs
+// 		.query({
+// 			currentWindow: true,
+// 			active: true,
+// 		})
+// 		.then(sendMessageToSender);
+// });
