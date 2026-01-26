@@ -121,15 +121,19 @@ function getSafeText(element) {
 
 function extract_answers()
 {
-	const answers = document.getElementsByClassName("rightanswer");
+	// const answers = document.getElementsByClassName("rightanswer");
 	const questions = document.getElementsByClassName("qtext");
 	const title = document.getElementsByClassName("page-header-headings");
 
 	const question_struct = [{title: title[0].children[0].innerText}];
 
-	for (let i = 0; i < answers.length; i++) {
+	for (let i = 0; i < questions.length; i++) {
 
-		const temp = getSafeText(answers[i]).replaceAll("\\",'').split('\n');
+		const ans = questions[i].querySelector(".rightanswer");
+		if (!ans)
+			continue;
+
+		const temp = getSafeText(ans).replaceAll("\\",'').split('\n');
 		// const temp = answers[i].textContent.split('\n');
 		let str = "";
 
